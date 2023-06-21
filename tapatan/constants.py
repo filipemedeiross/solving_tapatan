@@ -1,6 +1,7 @@
 # Defining the constants
 
 # Game settings
+EMPTY = 0
 REDS  = 1
 BLUES = 2
 

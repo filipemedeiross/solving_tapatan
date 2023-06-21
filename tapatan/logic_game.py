@@ -1,5 +1,5 @@
 import numpy as np
-from .constants import REDS, BLUES, MOVES, WINNING_POSITIONS
+from .constants import EMPTY, REDS, BLUES, MOVES, WINNING_POSITIONS
 
 
 # Class that implements the tapatan logic
@@ -28,34 +28,24 @@ class TapatanGrid:
         return grid
     
     def move(self, user, start, final):
-        x_start, y_start = start
-        x_final, y_final = final
+        x0, y0 = start
+        x1, y1 = final
 
-        assert 0 <= x_start <= 2, 'Invalid value for x in start'
-        assert 0 <= y_start <= 2, 'Invalid value for y in start'
+        assert 0 <= x0 <= 2, 'Invalid value for x in start'
+        assert 0 <= y0 <= 2, 'Invalid value for y in start'
 
-        assert 0 <= x_final <= 2, 'Invalid value for x in final'
-        assert 0 <= y_final <= 2, 'Invalid value for y in final'
+        assert 0 <= x1 <= 2, 'Invalid value for x in final'
+        assert 0 <= y1 <= 2, 'Invalid value for y in final'
 
-        assert user in [REDS, BLUES], 'Invalid value for user'
-        assert self.grid[start] == user, 'User is not in start position'
+        assert user in [REDS, BLUES]      , 'Invalid value for user'
+        assert self.grid[start] == user   , 'User is not in start position'
+        assert self.grid[final] == EMPTY  , 'The final position is occupied'
+        assert final in self.moves[x0][y0], 'Invalid movement'
 
-        if (start, final) in self.available_moves(user):
-            self.grid[start] = 0
-            self.grid[final] = user
+        self.grid[start] = 0
+        self.grid[final] = user
 
-            return start, final
-
-    def available_moves(self, user):
-        pos_user = list(zip(*np.where(self.grid == user)))
-
-        moves = []
-        for pos in pos_user:
-            for move in self.moves[pos[0]][pos[1]]:
-                if not self.grid[move]:
-                    moves.append((pos, move))
-
-        return moves
+        return start, final
     
     def win(self, user):
         for positions in self.winning_positions:
@@ -75,8 +65,12 @@ class TapatanGrid:
     @property
     def winning_positions(self):
         return self.__winpos
+    
+    def user_pos(self, user):
+        return list(zip(*np.where(self.grid == user)))
 
 
+# Game prototype
 if __name__ == '__main__':
     grid = TapatanGrid()
 
@@ -84,12 +78,12 @@ if __name__ == '__main__':
     while True:
         print(grid)
 
-        pos_start = tuple(int(c) for c in input(f'Insira a posição inicial [{user}]='))
-        pos_final = tuple(int(c) for c in input(f'Insira a posição final   [{user}]='))
+        pos_start = tuple(int(c) for c in input(f'Enter the starting position [{user}]='))
+        pos_final = tuple(int(c) for c in input(f'Enter the end position      [{user}]='))
 
-        if grid.move(user, pos_start, pos_final):
+        if grid.move(user, pos_start, pos_final):   
             if grid.win(user):
-                print(f'\n*** Usuário {user} venceu a partida! ***\n')
+                print(f'\n*** User {user} won the match! ***\n')
                 break
-            else:
-                user = BLUES if user == REDS else REDS
+            
+            user = BLUES if user == REDS else REDS
