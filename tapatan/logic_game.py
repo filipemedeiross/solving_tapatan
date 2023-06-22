@@ -27,6 +27,9 @@ class TapatanGrid:
 
         return grid
     
+    def update(self):
+        self.grid = self.new_grid()
+    
     def move(self, user, start, final):
         x0, y0 = start
         x1, y1 = final
@@ -57,6 +60,10 @@ class TapatanGrid:
     @property
     def grid(self):
         return self.__grid
+    
+    @grid.setter
+    def grid(self, grid):
+        self.__grid = grid
     
     @property
     def moves(self):
