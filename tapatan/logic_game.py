@@ -1,5 +1,5 @@
 import numpy as np
-from .constants import EMPTY, REDS, BLUES, MOVES, WINNING_POSITIONS
+from .constants import N, EMPTY, BLACK, WHITE, MOVES, WINNING_POSITIONS
 
 
 # Class that implements the tapatan logic
@@ -20,10 +20,10 @@ class TapatanGrid:
         return self.grid[args]
     
     def new_grid(self):
-        grid = np.zeros((3, 3), dtype='int8')
+        grid = np.zeros((N, N), dtype='int8')
 
-        grid[0, 0] = grid[1, 2] = grid[2, 0] = REDS
-        grid[0, 2] = grid[1, 0] = grid[2, 2] = BLUES
+        grid[0, 0] = grid[1, 2] = grid[2, 0] = BLACK
+        grid[0, 2] = grid[1, 0] = grid[2, 2] = WHITE
 
         return grid
     
@@ -37,7 +37,7 @@ class TapatanGrid:
         assert 0 <= x1 <= 2, 'Invalid value for x in final'
         assert 0 <= y1 <= 2, 'Invalid value for y in final'
 
-        assert user in [REDS, BLUES]      , 'Invalid value for user'
+        assert user in [BLACK, WHITE]     , 'Invalid value for user'
         assert self.grid[start] == user   , 'User is not in start position'
         assert self.grid[final] == EMPTY  , 'The final position is occupied'
         assert final in self.moves[x0][y0], 'Invalid movement'
@@ -74,7 +74,7 @@ class TapatanGrid:
 if __name__ == '__main__':
     grid = TapatanGrid()
 
-    user = REDS
+    user = BLACK
     while True:
         print(grid)
 
@@ -83,7 +83,8 @@ if __name__ == '__main__':
 
         if grid.move(user, pos_start, pos_final):   
             if grid.win(user):
-                print(f'\n*** User {user} won the match! ***\n')
                 break
-            
-            user = BLUES if user == REDS else REDS
+            else:
+                user = BLACK if user == WHITE else WHITE
+
+    print(f'\n*** User {user} won the match! ***\n')
