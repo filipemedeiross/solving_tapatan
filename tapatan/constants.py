@@ -30,23 +30,25 @@ WINNING_POSITIONS = [[(0, 0), (0, 1), (0, 2)],
 # Colors
 
 COLOR_FONT = 0, 0, 0
-LINE_COLOR = 255, 255, 255
+COLOR_GRID = 184, 134, 11
 
 # Dimensions
 
 size = width, height = 240, 360
-font_size = 20
+font_size = 20 
 
 spacing = 10
-spacing_grid = 25
-side_spacing = 15
-top_spacing = 60
-bottom_spacing = height * 3 / 4
+spacing_lateral = 15
+spacing_grid_lateral = 25
+spacing_grid_top = 60
+spacing_button_bottom = height * 3 / 4
+
+grid = width - 2 * spacing_grid_lateral
+
+size_piece = grid / (2 * N)
+spacing_piece_center = size_piece / 2
+radius_piece_empty   = size_piece / 4
 
 w_button = h_button = 35
-
-grid = width - 2 * spacing_grid
-
-side = grid / (2 * N)
-spacing_piece_center = side / 2
-spacing_piece_empty = side / 4
+w_button_play, h_button_play = width - 2 * spacing_lateral, h_button
+w_grid_line = 5
