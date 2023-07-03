@@ -228,7 +228,7 @@ class Tapatan:
     def check_move(self, move, start, end):
         return move == END and \
                start       and \
-               end in self.tapatan.moves[start[0]][start[1]]
+               end in MOVES[start[0]][start[1]]
     
     def check_win(self, player):
         playing = True
@@ -252,7 +252,7 @@ class Tapatan:
     def random_move(self):
         time = pygame.time.wait(1000)
 
-        start, end = choice(available_moves_user(self.tapatan, self.enemy))
+        start, end = choice(available_moves_user(self.tapatan.grid, self.enemy))
         self.move(self.enemy, start, end)
 
         return time
