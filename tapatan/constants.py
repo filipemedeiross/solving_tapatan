@@ -1,6 +1,7 @@
 # Logic settings
 
 N = 3
+MINIMAX_DEPTH = 6
 
 EMPTY = 0
 BLACK = 1
