@@ -1,9 +1,8 @@
 import pygame
-from random import choice
 from webbrowser import open
 from .constants import *
 from .logic_game import TapatanGrid
-from .formulations import available_moves_user
+from .solvers import minimax
 
 
 class Tapatan:
@@ -133,7 +132,7 @@ class Tapatan:
                             self.display_moves(moves)
                             
                             if playing:
-                                time += self.random_move()
+                                time += self.minimax_move()
                                 playing = self.check_win(self.enemy)
 
                                 if playing:
@@ -249,11 +248,10 @@ class Tapatan:
         self.tapatan.move(player, start, pos)
         self.display_board()
 
-    def random_move(self):
+    def minimax_move(self):
         time = pygame.time.wait(1000)
 
-        start, end = choice(available_moves_user(self.tapatan.grid, self.enemy))
-        self.move(self.enemy, start, end)
+        self.move(self.enemy, *minimax(self.tapatan.grid))
 
         return time
 
