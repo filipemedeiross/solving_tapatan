@@ -1,4 +1,4 @@
-from tapatan import Tapatan
+from tapatan.tapatan import Tapatan
 
 
 game = Tapatan()

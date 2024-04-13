@@ -1,11 +1,15 @@
 from .constants import BLACK, WHITE
-from .formulations import new_grid, update_grid, move, win
+from .formulations import new_grid,    \
+                          update_grid, \
+                          move, win
 
 
-# Class that implements the tapatan logic
 class TapatanGrid:
     def __init__(self):
-        self.__grid  = self.new_grid()
+        self.grid = new_grid()
+
+    def __getitem__(self, args):
+        return self.grid[args]
 
     def __str__(self):
         return '  -  '.join(map(str, self.grid[0])) + '\n' + \
@@ -13,47 +17,31 @@ class TapatanGrid:
                '  -  '.join(map(str, self.grid[1])) + '\n' + \
                '|  /  |  \  |'                      + '\n' + \
                '  -  '.join(map(str, self.grid[2]))
-    
-    def __getitem__(self, args):
-        return self.grid[args]
-    
-    @staticmethod
-    def new_grid():
-        return new_grid()
-    
+
     def update(self):
-        update_grid(self.grid)
-    
+        self.grid = update_grid(self.grid)
+
     def move(self, user, start, final):
-        return move(self.grid, user, start, final)
-    
+        move(self.grid, user, start, final)
+
     def win(self, user):
         return win(self.grid, user)
-    
-    @property
-    def grid(self):
-        return self.__grid
-    
-    @grid.setter
-    def grid(self, grid):
-        self.__grid = grid
 
 
-# Game prototype
+# Testing the game
 if __name__ == '__main__':
     grid = TapatanGrid()
 
-    user = BLACK
-    while True:
+    user = WHITE
+    while not grid.win(user):
         print(grid)
 
-        pos_start = tuple(int(c) for c in input(f'Enter the starting position [{user}]='))
-        pos_final = tuple(int(c) for c in input(f'Enter the end position      [{user}]='))
+        user = BLACK if user == WHITE else WHITE
+        start = tuple(int(c) for c in input(f'Enter the starting position [{user}]='))
+        final = tuple(int(c) for c in input(f'Enter the end position      [{user}]='))
 
-        if grid.move(user, pos_start, pos_final):   
-            if grid.win(user):
-                break
-            else:
-                user = BLACK if user == WHITE else WHITE
+        grid.move(user, start, final)
 
-    print(f'\n*** User {user} won the match! ***\n')
+    print(grid)
+    print()
+    print(f'*** User {user} won the match! ***')

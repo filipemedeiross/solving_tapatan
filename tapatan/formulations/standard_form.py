@@ -1,33 +1,31 @@
 import numpy as np
-from ..constants import N, EMPTY, BLACK, WHITE, \
+from ..constants import N, EMPTY, BLACK, WHITE,  \
                         MOVES, WINNING_POSITIONS
 
 
 def new_grid():
-    grid = np.zeros((N, N), dtype='int8')
+    return update_grid(np.zeros(shape=(N, N),
+                                dtype='int8'))
 
-    grid[0, 0] = grid[1, 2] = grid[2, 0] = BLACK
-    grid[0, 2] = grid[1, 0] = grid[2, 2] = WHITE
+def update_grid(grid):
+    grid[0, :] = BLACK, EMPTY, WHITE
+    grid[1, :] = WHITE, EMPTY, BLACK
+    grid[2, :] = BLACK, EMPTY, WHITE
 
     return grid
-    
-def update_grid(grid):
-    grid[0, 0] = grid[1, 2] = grid[2, 0] = BLACK
-    grid[0, 1] = grid[1, 1] = grid[2, 1] = EMPTY
-    grid[0, 2] = grid[1, 0] = grid[2, 2] = WHITE
 
 def user_pos(grid, user):
     return list(zip(*np.where(grid == user)))
 
-def available_pos(grid, x, y):
+def get_pos(grid, x, y):
     return [pos
             for pos in MOVES[x][y]
             if not grid[pos]]
 
-def available_moves_user(grid, user):
+def get_moves(grid, user):
     return [(pos, move)
             for pos in user_pos(grid, user)
-            for move in available_pos(grid, *pos)]
+            for move in get_pos(grid, *pos)]
 
 def move(grid, user, start, final):
     x0, y0 = start
@@ -47,11 +45,9 @@ def move(grid, user, start, final):
     grid[start] = 0
     grid[final] = user
 
-    return start, final
-    
 def win(grid, user):
-    for positions in WINNING_POSITIONS:
-        if all(grid[pos] == user for pos in positions):
+    for pos in WINNING_POSITIONS:
+        if all(grid[p] == user for p in pos):
             return True
 
     return False
