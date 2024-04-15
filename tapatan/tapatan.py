@@ -1,83 +1,73 @@
 import pygame
 from webbrowser import open
+
 from .constants import *
-from .logic_game import TapatanGrid
 from .solvers import minimax
+from .logic_game import TapatanGrid
 
 
 class Tapatan:
     def __init__(self):
-        pygame.init()
-
-        self.tapatan = TapatanGrid()
+        # Initializing game logic
         self.player  = BLACK
         self.enemy   = WHITE
+        self.tapatan = TapatanGrid()
 
-        self.screen = None
-        self.font   = pygame.font.SysFont('Arial', size=font_size, bold=True)
+        # Instantiating the font, clock, screen and mixer
+        pygame.init()
+
+        self.font   = pygame.font.SysFont(FONT_TYPE, size=FONT_SIZE, bold=True)
         self.clock  = pygame.time.Clock()
-        self.sound  = pygame.mixer.music.load('tapatan/media/desert_song.mp3')
+        self.screen = pygame.display.set_mode(SIZE)
 
-        self.playing_music = None
-
-        # Loading components used in the game
-        self.pieces = self.load_pieces()      
-        self.rects  = self.load_rects()
-
-        self.background = pygame.image.load('tapatan/media/bg.png')
-        self.background = pygame.transform.scale(self.background, size)
-
-        self.board = self.load_board()
-        self.board_rect = self.board.get_rect(topleft=self.rects[0].topleft)
-
-        self.button_play = pygame.image.load('tapatan/media/play.png')
-        self.button_play = pygame.transform.scale(self.button_play, size_button_play)
-        self.button_play_rect = self.button_play.get_rect(topleft=(spacing_lateral, spacing_button_bottom))
-
-        self.button_info = pygame.image.load('tapatan/media/info.png')
-        self.button_info = pygame.transform.scale(self.button_info, size_button)
-        self.button_info_rect = self.button_info.get_rect(topright=(spacing_grid_right, spacing))
-
-        self.button_sound = pygame.image.load('tapatan/media/sound.png')
-        self.button_sound = pygame.transform.scale(self.button_sound, size_button)
-        self.button_sound_off = pygame.image.load('tapatan/media/sound_off.png')
-        self.button_sound_off = pygame.transform.scale(self.button_sound_off, size_button)
-        self.button_sound_rect = self.button_sound.get_rect(topright=(self.button_info_rect.left - spacing, self.button_info_rect.top))
-
-        self.button_refresh = pygame.image.load('tapatan/media/refresh.png')
-        self.button_refresh = pygame.transform.scale(self.button_refresh, size_button)
-        self.button_refresh_rect = self.button_refresh.get_rect(topleft=self.button_info_rect.topleft)
-
-        self.button_return = pygame.image.load('tapatan/media/return.png')
-        self.button_return = pygame.transform.scale(self.button_return, size_button)
-        self.button_return_rect = self.button_return.get_rect(topleft=self.button_sound_rect.topleft)
-
-        self.button_empty = pygame.image.load('tapatan/media/empty.png')
-        self.button_empty = pygame.transform.scale(self.button_empty, size_button_empty)
-        self.button_time_rect = self.button_empty.get_rect(topleft=(spacing_grid_left + spacing, spacing_button_bottom))
-        self.button_moves_rect = self.button_empty.get_rect(topright=(spacing_grid_right - spacing, spacing_button_bottom))
-    
-        self.button_win = pygame.image.load('tapatan/media/win.png')
-        self.button_win = pygame.transform.scale(self.button_win, size_message_win)
-        self.button_lose = pygame.image.load('tapatan/media/lose.png')
-        self.button_lose = pygame.transform.scale(self.button_lose, size_message_win)
-        self.button_win_rect = self.button_win.get_rect(topleft=(spacing_grid_left, spacing_grid_top + 2 * side_piece))
-
-    # Method that start the game
-    def init_game(self):
-        self.screen = pygame.display.set_mode(size)
         pygame.display.set_caption('Tapatan')
 
-        self.playing_music = True
-        pygame.mixer.music.play(-1)
+        self.sound = pygame.mixer.music.load(GAME_MUSIC_PATH)
+        self.play_music = False
 
+        # Loading components used in the game
+        self.bg = self.load_image(BG_PATH, SIZE)
+
+        self.load_rects()
+        self.load_piecs()
+        self.load_board()
+
+        self.button_play = self.load_image(PLAY_PATH, BP_SIZE)
+        self.button_play_rect = self.button_play.get_rect(topleft=(SPC_L, BU_TOP))
+
+        self.button_info = self.load_image(INFO_PATH, BU_SIZE)
+        self.button_info_rect = self.button_info.get_rect(topright=(GRID_RIGHT, SPC))
+
+        self.button_sound_on  = self.load_image(SOUND_ON_PATH, BU_SIZE)
+        self.button_sound_off = self.load_image(SOUND_OFF_PATH, BU_SIZE)
+        self.button_sound_rect = self.button_sound_on.get_rect(topright=(self.button_info_rect.left - SPC,
+                                                                         self.button_info_rect.top))
+
+        self.button_refresh = self.load_image(REFRESH_PATH, BU_SIZE)
+        self.button_refresh_rect = self.button_refresh.get_rect(topleft=self.button_info_rect.topleft)
+
+        self.button_return = self.load_image(RETURN_PATH, BU_SIZE)
+        self.button_return_rect = self.button_return.get_rect(topleft=self.button_sound_rect.topleft)
+
+        self.button_empty = self.load_image(EMPTY_PATH, BE_SIZE)
+        self.button_time_rect = self.button_empty.get_rect(topleft=(GRID_LEFT + SPC, BU_TOP))
+        self.button_moves_rect = self.button_empty.get_rect(topright=(GRID_RIGHT - SPC, BU_TOP))
+    
+        self.button_win = self.load_image(WIN_PATH, WIN_SIZE)
+        self.button_lose = self.load_image(LOSE_PATH, WIN_SIZE)
+        self.button_win_rect = self.button_win.get_rect(topleft=(GRID_LEFT, GRID_TOP + 2 * PIECE_SIDE))
+
+    def init_game(self):
         while True:
             self.main_screen()
             self.play()
 
     def main_screen(self):
+        self.play_music = True
+        pygame.mixer.music.play(-1)
+
         # Preparing the main screen
-        self.screen.blit(self.background, (0, 0))
+        self.screen.blit(self.bg, (0, 0))
         self.screen.blit(self.button_play, self.button_play_rect)
         self.screen.blit(self.button_info, self.button_info_rect)
 
@@ -101,7 +91,7 @@ class Tapatan:
                         open('https://github.com/filipemedeiross', new=2)
 
     def play(self):
-        self.screen.blit(self.background, (0, 0))  # overriding main screen buttons
+        self.screen.blit(self.bg, (0, 0))  # overriding main screen buttons
         self.screen.blit(self.button_return, self.button_return_rect)
         self.screen.blit(self.button_refresh, self.button_refresh_rect)
 
@@ -139,7 +129,7 @@ class Tapatan:
                                     start = None
 
             if playing:
-                time += self.clock.tick(10)
+                time += self.clock.tick(FRAMERATE_PS)
                 self.display_time(time)
 
     def display_board(self, emphasis=None):
@@ -147,10 +137,10 @@ class Tapatan:
 
         if emphasis:
             x_emph, y_emph = self.rects[(emphasis[0] * N) + emphasis[1]].topleft
-            x_emph += spacing_piece_center
-            y_emph += spacing_piece_center
+            x_emph += PIECE_CENTER
+            y_emph += PIECE_CENTER
 
-            pygame.draw.circle(self.screen, COLOR_EMPH, (x_emph, y_emph), radius_emphasis)
+            pygame.draw.circle(self.screen, EMPH_COLOR, (x_emph, y_emph), EMPHS_RADIUS)
 
         for user, pos in zip(self.tapatan.grid.flatten(), self.rects):
             if user == BLACK:
@@ -161,30 +151,30 @@ class Tapatan:
         pygame.display.update(self.board_rect)
 
     def display_sound(self):
-        if self.playing_music:
-            self.screen.blit(self.button_sound, self.button_sound_rect)
+        if self.play_music:
+            self.screen.blit(self.button_sound_on, self.button_sound_rect)
         else:
             self.screen.blit(self.button_sound_off, self.button_sound_rect)
         
         pygame.display.update(self.button_sound_rect)
 
-    def display_moves(self, moves):
-        moves_text = self.font.render(f'{moves}', True, COLOR_FONT)
-
-        self.screen.blit(self.button_empty, self.button_moves_rect)
-        self.screen.blit(moves_text, (self.button_moves_rect.centerx - (moves_text.get_width() / 2),
-                                      self.button_moves_rect.centery - (moves_text.get_height() / 2)))
-        
-        pygame.display.update(self.button_moves_rect)
-
     def display_time(self, time):
-        time_text = self.font.render(f'{time // 1000 // 60}:{time // 1000 % 60}', True, COLOR_FONT)
+        time_text = self.font.render(f'{time // 1000 // 60}:{time // 1000 % 60}', True, FONT_COLOR)
 
         self.screen.blit(self.button_empty, self.button_time_rect)
         self.screen.blit(time_text, (self.button_time_rect.centerx - (time_text.get_width() / 2),
                                      self.button_time_rect.centery - (time_text.get_height() / 2)))
 
         pygame.display.update(self.button_time_rect)
+
+    def display_moves(self, moves):
+        moves_text = self.font.render(f'{moves}', True, FONT_COLOR)
+
+        self.screen.blit(self.button_empty, self.button_moves_rect)
+        self.screen.blit(moves_text, (self.button_moves_rect.centerx - (moves_text.get_width() / 2),
+                                      self.button_moves_rect.centery - (moves_text.get_height() / 2)))
+        
+        pygame.display.update(self.button_moves_rect)
 
     def init_variables(self):
         time    = 0
@@ -202,12 +192,12 @@ class Tapatan:
         return time, moves, playing, start
     
     def switch_sound(self):
-        if self.playing_music:
+        if self.play_music:
             pygame.mixer.music.pause()
-            self.playing_music = False
+            self.play_music = False
         else:
             pygame.mixer.music.unpause()
-            self.playing_music = True
+            self.play_music = True
     
     def piece_collide(self, event_pos):
         pos, move = None, None
@@ -255,51 +245,39 @@ class Tapatan:
 
         return time
 
-    def load_pieces(self):
-        pieces = {BLACK : pygame.image.load('tapatan/media/black_piece.png'),
-                  WHITE : pygame.image.load('tapatan/media/white_piece.png')}
-        
-        pieces[BLACK] = pygame.transform.scale(pieces[BLACK], size_piece)
-        pieces[WHITE] = pygame.transform.scale(pieces[WHITE], size_piece)
-
-        return pieces
-    
     def load_rects(self):
-        rects = []
+        self.rects = [pygame.Rect(GRID_LEFT + PIECE_SPC * j,
+                                  GRID_TOP  + PIECE_SPC * i,
+                                  PIECE_SIDE, PIECE_SIDE)
+                      for i in range(N)
+                      for j in range(N)]
 
-        for i in range(N):
-            for j in range(N):
-                topleft = (spacing_grid_left + (2.5*side_piece) * j,
-                           spacing_grid_top  + (2.5*side_piece) * i)
-                
-                rects.append(pygame.Rect(topleft, size_piece))
-        
-        return rects
-    
+    def load_piecs(self):
+        self.pieces = {BLACK : self.load_image(BLACK_PATH, PIECE_SIZE),
+                       WHITE : self.load_image(WHITE_PATH, PIECE_SIZE)}
+
     def load_board(self):
-        board = self.background.subsurface(self.rects[0].topleft, (grid, grid))
+        self.board = self.bg.subsurface(self.rects[0].topleft, GRID_SIZE)
+        self.board_rect = self.board.get_rect(topleft=self.rects[0].topleft)
 
-        spacing_x = spacing_piece_center - self.rects[0].left
-        spacing_y = spacing_piece_center - self.rects[0].top
+        spc_x = PIECE_CENTER - self.rects[0].left
+        spc_y = PIECE_CENTER - self.rects[0].top
 
         for x0 in range(N):
             for y0 in range(N):
-                x_start, y_start = self.rects[(x0 * N) + y0].topleft
-                x_start += spacing_x
-                y_start += spacing_y
-                
-                pygame.draw.circle(board, COLOR_GRID, (x_start, y_start), radius_piece_empty)
+                pos_x0, pos_y0 = self.rects[(N * x0) + y0].topleft
+                pos_x0 += spc_x
+                pos_y0 += spc_y
+
+                pygame.draw.circle(self.board, GRID_COLOR, (pos_x0, pos_y0), PIECE_RADIUS)
 
                 for x1, y1 in MOVES[x0][y0]:
-                    x_end, y_end = self.rects[(x1 * N) + y1].topleft
-                    x_end += spacing_x
-                    y_end += spacing_y
+                    pos_x1, pos_y1 = self.rects[(N * x1) + y1].topleft
+                    pos_x1 += spc_x
+                    pos_y1 += spc_y
 
-                    pygame.draw.line(board, COLOR_GRID, (x_start, y_start), (x_end, y_end), w_grid_line)
+                    pygame.draw.line(self.board, GRID_COLOR, (pos_x0, pos_y0), (pos_x1, pos_y1), W_LINE)
 
-        return board
-
-
-if __name__ == '__main__':
-    tapatan = Tapatan()
-    tapatan.init_game()
+    @staticmethod
+    def load_image(path, size):
+        return pygame.transform.scale(pygame.image.load(path), size)
