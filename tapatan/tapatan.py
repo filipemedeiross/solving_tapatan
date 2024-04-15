@@ -1,4 +1,8 @@
 import pygame
+from pygame.image import load
+from pygame.transform import scale
+from pygame.display import flip, update
+
 from webbrowser import open
 
 from .constants import *
@@ -62,38 +66,24 @@ class Tapatan:
             self.play()
 
     def main_screen(self):
-        # Preparing the main screen
-        self.screen.blit(self.bg, (0, 0))
-        self.screen.blit(self.button_play, self.button_play_rect)
-        self.screen.blit(self.button_info, self.button_info_rect)
+        self.display_main_screen()
 
-        self.display_board()
-        self.display_sound()
-
-        pygame.display.flip()
-
-        # Getting input from user
         while True:
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
+                if event.type == QUIT:
                     exit(0)
-                elif event.type == pygame.MOUSEBUTTONDOWN:
+                elif event.type == MOUSEBUTTONDOWN:
                     if self.button_play_rect.collidepoint(event.pos):
                         return
                     elif self.button_sound_rect.collidepoint(event.pos):
                         self.switch_sound()
-                        self.display_sound()
                     elif self.button_info_rect.collidepoint(event.pos):
                         open('https://github.com/filipemedeiross', new=2)
 
     def play(self):
-        self.screen.blit(self.bg, (0, 0))  # overriding main screen buttons
-        self.screen.blit(self.button_return, self.button_return_rect)
-        self.screen.blit(self.button_refresh, self.button_refresh_rect)
-
-        pygame.display.flip()
-
         time, moves, playing, start = self.init_variables()
+        self.display_play_screen(time, moves)
+
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -104,6 +94,7 @@ class Tapatan:
                         return
                     elif self.button_refresh_rect.collidepoint(event.pos):
                         time, moves, playing, start = self.init_variables()
+                        self.display_play_screen(time, moves)
                     elif playing:
                         pos, move = self.piece_collide(event.pos)
 
@@ -128,6 +119,27 @@ class Tapatan:
                 time += self.clock.tick(FRAMERATE_PS)
                 self.display_time(time)
 
+    def display_main_screen(self):
+        self.screen.blit(self.bg, (0, 0))
+        self.screen.blit(self.button_play, self.button_play_rect)
+        self.screen.blit(self.button_info, self.button_info_rect)
+
+        self.display_sound()
+        self.display_board()
+
+        flip()
+
+    def display_play_screen(self, time, moves):
+        self.screen.blit(self.bg, (0, 0))
+        self.screen.blit(self.button_return, self.button_return_rect)
+        self.screen.blit(self.button_refresh, self.button_refresh_rect)
+
+        self.display_board()
+        self.display_time(time)
+        self.display_moves(moves)
+
+        flip()
+
     def display_board(self, emphasis=None):
         self.screen.blit(self.board, self.board_rect)
 
@@ -144,7 +156,7 @@ class Tapatan:
             elif user == WHITE:
                 self.screen.blit(self.pieces[WHITE], pos.topleft)
 
-        pygame.display.update(self.board_rect)
+        update(self.board_rect)
 
     def display_sound(self):
         if self.playing_sound:
@@ -152,7 +164,7 @@ class Tapatan:
         else:
             self.screen.blit(self.button_sound_off, self.button_sound_rect)
         
-        pygame.display.update(self.button_sound_rect)
+        update(self.button_sound_rect)
 
     def display_time(self, time):
         time_text = self.font.render(f'{time // 1000 // 60}:{time // 1000 % 60}', True, FONT_COLOR)
@@ -161,7 +173,7 @@ class Tapatan:
         self.screen.blit(time_text, (self.button_time_rect.centerx - (time_text.get_width() / 2),
                                      self.button_time_rect.centery - (time_text.get_height() / 2)))
 
-        pygame.display.update(self.button_time_rect)
+        update(self.button_time_rect)
 
     def display_moves(self, moves):
         moves_text = self.font.render(f'{moves}', True, FONT_COLOR)
@@ -170,7 +182,7 @@ class Tapatan:
         self.screen.blit(moves_text, (self.button_moves_rect.centerx - (moves_text.get_width() / 2),
                                       self.button_moves_rect.centery - (moves_text.get_height() / 2)))
         
-        pygame.display.update(self.button_moves_rect)
+        update(self.button_moves_rect)
 
     def init_variables(self):
         time    = 0
@@ -180,10 +192,6 @@ class Tapatan:
 
         self.tapatan.update()
         self.clock.tick()
-        
-        self.display_board()
-        self.display_time(time)
-        self.display_moves(moves)
 
         return time, moves, playing, start
     
@@ -192,6 +200,8 @@ class Tapatan:
             pygame.mixer.music.pause()
         else:
             pygame.mixer.music.unpause()
+
+        self.display_sound()
     
     def piece_collide(self, event_pos):
         pos, move = None, None
@@ -224,7 +234,7 @@ class Tapatan:
             else:
                 self.screen.blit(self.button_lose, self.button_win_rect)
 
-            pygame.display.update(self.button_win_rect)
+            update(self.button_win_rect)
         
         return playing
     
@@ -274,7 +284,7 @@ class Tapatan:
 
     @staticmethod
     def load_image(path, size):
-        return pygame.transform.scale(pygame.image.load(path), size)
+        return scale(load(path), size)
 
     @property
     def playing_sound(self):
