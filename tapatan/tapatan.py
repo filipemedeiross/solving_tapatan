@@ -96,24 +96,23 @@ class Tapatan:
                         self.init_var()
                         self.display_play_screen()
                     elif self.playing:
-                        pos, mve = self.collide(event.pos)
+                        pos, move = self.collide(event.pos)
 
-                        if mve == START:
+                        if move == START:
                             self.start = pos
                             self.display_board(self.start)
-                        elif self.check_move(mve, self.start, pos):
+                        elif move == END and self.check_move(self.start, pos):
                             self.move(self.player, self.start, pos)
-                            self.playing = self.check_win(self.player)
+                            self.display_board()
+                            self.check_win(self.player)
 
                             self.moves += 1
                             self.display_moves()
-                            
-                            if play:
-                                time += self.minimax_move()
-                                play = self.check_win(self.enemy)
 
-                                if play:
-                                    start = None
+                            if self.playing:
+                                self.minimax_move()
+                                self.display_board()
+                                self.check_win(self.enemy)
 
             if self.playing:
                 self.update_time()
@@ -185,6 +184,14 @@ class Tapatan:
 
         update(self.button_moves_rect)
 
+    def display_win(self, player):
+        self.screen.blit(self.button_win
+                         if player == self.player
+                         else self.button_lose,
+                         self.button_win_rect)
+
+        update(self.button_win_rect)
+
     def init_var(self):
         self.time  = 0
         self.moves = 0
@@ -220,36 +227,20 @@ class Tapatan:
 
         return None, None
 
-    def check_move(self, move, start, end):
-        return move == END and \
-               start       and \
-               end in MOVES[start[0]][start[1]]
-    
+    def check_move(self, p0, p1):
+        return p0 and p1 in MOVES[p0[0]][p0[1]]
+
     def check_win(self, player):
-        play = True
-
         if self.tapatan.win(player):
-            play = False
+            self.playing = False
+            self.display_win(player)
 
-            if player == self.player:
-                self.screen.blit(self.button_win, self.button_win_rect)
-            else:
-                self.screen.blit(self.button_lose, self.button_win_rect)
-
-            update(self.button_win_rect)
-        
-        return play
-    
     def move(self, player, start, pos):
         self.tapatan.move(player, start, pos)
-        self.display_board()
 
     def minimax_move(self):
-        time = pygame.time.wait(1000)
-
+        self.time += pygame.time.wait(TIME_WAIT)
         self.move(self.enemy, *minimax(self.grid))
-
-        return time
 
     def load_rects(self):
         self.rects = [pygame.Rect(GRID_LEFT + PIECE_SPC * j,
