@@ -81,8 +81,8 @@ class Tapatan:
                         open('https://github.com/filipemedeiross', new=2)
 
     def play(self):
-        time, moves, playing, start = self.init_variables()
-        self.display_play_screen(time, moves)
+        self.init_var()
+        self.display_play_screen()
 
         while True:
             for event in pygame.event.get():
@@ -93,7 +93,7 @@ class Tapatan:
                         self.tapatan.update()  # update the grid
                         return
                     elif self.button_refresh_rect.collidepoint(event.pos):
-                        time, moves, playing, start = self.init_variables()
+                        time, moves, playing, start = self.init_var()
                         self.display_play_screen(time, moves)
                     elif playing:
                         pos, move = self.piece_collide(event.pos)
@@ -108,11 +108,11 @@ class Tapatan:
                             moves += 1
                             self.display_moves(moves)
                             
-                            if playing:
+                            if play:
                                 time += self.minimax_move()
-                                playing = self.check_win(self.enemy)
+                                play = self.check_win(self.enemy)
 
-                                if playing:
+                                if play:
                                     start = None
 
             if playing:
@@ -129,14 +129,14 @@ class Tapatan:
 
         flip()
 
-    def display_play_screen(self, time, moves):
+    def display_play_screen(self):
         self.screen.blit(self.bg, (0, 0))
         self.screen.blit(self.button_return, self.button_return_rect)
         self.screen.blit(self.button_refresh, self.button_refresh_rect)
 
         self.display_board()
-        self.display_time(time)
-        self.display_moves(moves)
+        self.display_time()
+        self.display_moves()
 
         flip()
 
@@ -166,8 +166,8 @@ class Tapatan:
 
         update(self.board_rect)
 
-    def display_time(self, time):
-        s = time // 1000
+    def display_time(self):
+        s = self.time // 1000
         time_text = self.font.render(f'{s // 60}:{s % 60}', True, FONT_COLOR)
         time_rect = time_text.get_rect(center=self.button_time_rect.center)
 
@@ -176,8 +176,8 @@ class Tapatan:
 
         update(self.button_time_rect)
 
-    def display_moves(self, moves):
-        moves_text = self.font.render(f'{moves}', True, FONT_COLOR)
+    def display_moves(self):
+        moves_text = self.font.render(f'{self.moves}', True, FONT_COLOR)
         moves_rect = moves_text.get_rect(center=self.button_moves_rect.center)
 
         self.screen.blit(self.button_empty, self.button_moves_rect)
@@ -185,17 +185,15 @@ class Tapatan:
 
         update(self.button_moves_rect)
 
-    def init_variables(self):
-        time    = 0
-        moves   = 0
-        playing = True
-        start   = None
+    def init_var(self):
+        self.time  = 0
+        self.moves = 0
+        self.start = None
+        self.playing = True
 
-        self.tapatan.update()
         self.clock.tick()
+        self.tapatan.update()
 
-        return time, moves, playing, start
-    
     def switch_sound(self):
         if self.play_sound:
             pygame.mixer.music.pause()
@@ -203,7 +201,7 @@ class Tapatan:
             pygame.mixer.music.unpause()
 
         self.display_sound()
-    
+
     def piece_collide(self, event_pos):
         pos, move = None, None
 
@@ -225,10 +223,10 @@ class Tapatan:
                end in MOVES[start[0]][start[1]]
     
     def check_win(self, player):
-        playing = True
+        play = True
 
         if self.tapatan.win(player):
-            playing = False
+            play = False
 
             if player == self.player:
                 self.screen.blit(self.button_win, self.button_win_rect)
@@ -237,7 +235,7 @@ class Tapatan:
 
             update(self.button_win_rect)
         
-        return playing
+        return play
     
     def move(self, player, start, pos):
         self.tapatan.move(player, start, pos)
