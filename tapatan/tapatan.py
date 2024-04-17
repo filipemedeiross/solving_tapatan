@@ -148,40 +148,41 @@ class Tapatan:
 
         update(self.button_sound_rect)
 
-    def display_board(self, emph=None):
+    def display_board(self, emp=None):
         self.screen.blit(self.board, self.board_rect)
 
-        if emph:
-            x, y = self.rects[(emph[0] * N) + emph[1]].topleft
+        if emp:
+            x, y = self.rects[(N * emp[0]) + emp[1]].topleft
             x += PIECE_CENTER
             y += PIECE_CENTER
 
             pygame.draw.circle(self.screen, EMPH_COLOR, (x, y), EMPHS_RADIUS)
 
-        for user, pos in zip(self.tapatan.grid.flatten(), self.rects):
-            if user == BLACK:
+        for usr, pos in zip(self.grid.flatten(), self.rects):
+            if usr == BLACK:
                 self.screen.blit(self.pieces[BLACK], pos.topleft)
-            elif user == WHITE:
+            elif usr == WHITE:
                 self.screen.blit(self.pieces[WHITE], pos.topleft)
 
         update(self.board_rect)
 
     def display_time(self, time):
-        time_text = self.font.render(f'{time // 1000 // 60}:{time // 1000 % 60}', True, FONT_COLOR)
+        s = time // 1000
+        time_text = self.font.render(f'{s // 60}:{s % 60}', True, FONT_COLOR)
+        time_rect = time_text.get_rect(center=self.button_time_rect.center)
 
         self.screen.blit(self.button_empty, self.button_time_rect)
-        self.screen.blit(time_text, (self.button_time_rect.centerx - (time_text.get_width() / 2),
-                                     self.button_time_rect.centery - (time_text.get_height() / 2)))
+        self.screen.blit(time_text, time_rect)
 
         update(self.button_time_rect)
 
     def display_moves(self, moves):
         moves_text = self.font.render(f'{moves}', True, FONT_COLOR)
+        moves_rect = moves_text.get_rect(center=self.button_moves_rect.center)
 
         self.screen.blit(self.button_empty, self.button_moves_rect)
-        self.screen.blit(moves_text, (self.button_moves_rect.centerx - (moves_text.get_width() / 2),
-                                      self.button_moves_rect.centery - (moves_text.get_height() / 2)))
-        
+        self.screen.blit(moves_text, moves_rect)
+
         update(self.button_moves_rect)
 
     def init_variables(self):
@@ -245,7 +246,7 @@ class Tapatan:
     def minimax_move(self):
         time = pygame.time.wait(1000)
 
-        self.move(self.enemy, *minimax(self.tapatan.grid))
+        self.move(self.enemy, *minimax(self.grid))
 
         return time
 
