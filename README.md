@@ -4,15 +4,15 @@
 
 The tapatan was implemented using the numpy library for the game logic and the pygame library for the interface. The game has three screens explained below:
 
-![Home Screen](https://github.com/filipemedeiross/solving_tapatan_by_adversarial_search/blob/main/examples/home_screen.jpeg)
+![Home Screen](https://github.com/filipemedeiross/solving_tapatan_by_adversarial_search/blob/main/examples/home_screen.png)
 
 The initial screen displays the game's initial board and the **Play** button that, when clicked, starts the game with the current state of the pieces. It also has an **i** button that takes you to the project developer's github profile.
 
-![Game Screen](https://github.com/filipemedeiross/solving_tapatan_by_adversarial_search/blob/main/examples/game_screen.jpeg)
+![Game Screen](https://github.com/filipemedeiross/solving_tapatan_by_adversarial_search/blob/main/examples/game_screen.png)
 
 When starting the game, it displays the time count and the movements performed, allowing the user to return to the initial screen, restart the game or perform the movements of the black pieces and play against a bot that uses AI.
 
-![Winner Screen](https://github.com/filipemedeiross/solving_tapatan_by_adversarial_search/blob/main/examples/winner_screen.jpeg)
+![Winner Screen](https://github.com/filipemedeiross/solving_tapatan_by_adversarial_search/blob/main/examples/winner_screen.png)
 
 When you win the game - most likely you will lose or play endlessly against the bot - time and movements are paused and interaction with the game is disabled. The functions of going back to the initial screen and restarting the game remain.
 
