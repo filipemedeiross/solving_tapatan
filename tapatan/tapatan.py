@@ -86,27 +86,27 @@ class Tapatan:
 
         while True:
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
+                if event.type == QUIT:
                     exit(0)
-                elif event.type == pygame.MOUSEBUTTONDOWN:
+                elif event.type == MOUSEBUTTONDOWN:
                     if self.button_return_rect.collidepoint(event.pos):
-                        self.tapatan.update()  # update the grid
+                        self.tapatan.update()
                         return
                     elif self.button_refresh_rect.collidepoint(event.pos):
-                        time, moves, playing, start = self.init_var()
-                        self.display_play_screen(time, moves)
-                    elif playing:
-                        pos, move = self.piece_collide(event.pos)
+                        self.init_var()
+                        self.display_play_screen()
+                    elif self.playing:
+                        pos, mve = self.collide(event.pos)
 
-                        if move == START:
-                            start = pos
-                            self.display_board(start)
-                        elif self.check_move(move, start, pos):
-                            self.move(self.player, start, pos)
-                            playing = self.check_win(self.player)
+                        if mve == START:
+                            self.start = pos
+                            self.display_board(self.start)
+                        elif self.check_move(mve, self.start, pos):
+                            self.move(self.player, self.start, pos)
+                            self.playing = self.check_win(self.player)
 
-                            moves += 1
-                            self.display_moves(moves)
+                            self.moves += 1
+                            self.display_moves()
                             
                             if play:
                                 time += self.minimax_move()
@@ -115,9 +115,9 @@ class Tapatan:
                                 if play:
                                     start = None
 
-            if playing:
-                time += self.clock.tick(FRAMERATE_PS)
-                self.display_time(time)
+            if self.playing:
+                self.update_time()
+                self.display_time()
 
     def display_main_screen(self):
         self.screen.blit(self.bg, (0, 0))
@@ -191,8 +191,8 @@ class Tapatan:
         self.start = None
         self.playing = True
 
-        self.clock.tick()
         self.tapatan.update()
+        self.clock.tick()
 
     def switch_sound(self):
         if self.play_sound:
@@ -202,21 +202,24 @@ class Tapatan:
 
         self.display_sound()
 
-    def piece_collide(self, event_pos):
-        pos, move = None, None
+    def update_time(self):
+        self.time += self.clock.tick(FRAMERATE_PS)
 
+    def collide(self, event):
         for x in range(N):
             for y in range(N):
-                if self.rects[(x * N) + y].collidepoint(event_pos):
-                    pos  = x, y
+                rect = self.rects[(N * x) + y]
 
-                    if self.tapatan[x, y] == self.player:                                    
-                        move = START
+                if rect.collidepoint(event):
+                    if self.tapatan[x, y] == self.player:
+                        return (x, y), START
                     elif self.tapatan[x, y] == EMPTY:
-                        move = END
-                    
-        return pos, move
-    
+                        return (x, y), END
+                    else:
+                        return (x, y), None
+
+        return None, None
+
     def check_move(self, move, start, end):
         return move == END and \
                start       and \
