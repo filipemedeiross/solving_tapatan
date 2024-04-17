@@ -140,15 +140,23 @@ class Tapatan:
 
         flip()
 
-    def display_board(self, emphasis=None):
+    def display_sound(self):
+        self.screen.blit(self.button_sound_on
+                         if self.play_sound
+                         else self.button_sound_off,
+                         self.button_sound_rect)
+
+        update(self.button_sound_rect)
+
+    def display_board(self, emph=None):
         self.screen.blit(self.board, self.board_rect)
 
-        if emphasis:
-            x_emph, y_emph = self.rects[(emphasis[0] * N) + emphasis[1]].topleft
-            x_emph += PIECE_CENTER
-            y_emph += PIECE_CENTER
+        if emph:
+            x, y = self.rects[(emph[0] * N) + emph[1]].topleft
+            x += PIECE_CENTER
+            y += PIECE_CENTER
 
-            pygame.draw.circle(self.screen, EMPH_COLOR, (x_emph, y_emph), EMPHS_RADIUS)
+            pygame.draw.circle(self.screen, EMPH_COLOR, (x, y), EMPHS_RADIUS)
 
         for user, pos in zip(self.tapatan.grid.flatten(), self.rects):
             if user == BLACK:
@@ -157,14 +165,6 @@ class Tapatan:
                 self.screen.blit(self.pieces[WHITE], pos.topleft)
 
         update(self.board_rect)
-
-    def display_sound(self):
-        if self.playing_sound:
-            self.screen.blit(self.button_sound_on, self.button_sound_rect)
-        else:
-            self.screen.blit(self.button_sound_off, self.button_sound_rect)
-        
-        update(self.button_sound_rect)
 
     def display_time(self, time):
         time_text = self.font.render(f'{time // 1000 // 60}:{time // 1000 % 60}', True, FONT_COLOR)
@@ -196,7 +196,7 @@ class Tapatan:
         return time, moves, playing, start
     
     def switch_sound(self):
-        if self.playing_sound:
+        if self.play_sound:
             pygame.mixer.music.pause()
         else:
             pygame.mixer.music.unpause()
@@ -264,21 +264,18 @@ class Tapatan:
         self.board = self.bg.subsurface(self.rects[0].topleft, GRID_SIZE)
         self.board_rect = self.board.get_rect(topleft=self.rects[0].topleft)
 
-        spc_x = PIECE_CENTER - self.rects[0].left
-        spc_y = PIECE_CENTER - self.rects[0].top
-
         for x0 in range(N):
             for y0 in range(N):
                 pos_x0, pos_y0 = self.rects[(N * x0) + y0].topleft
-                pos_x0 += spc_x
-                pos_y0 += spc_y
+                pos_x0 += SPC_X
+                pos_y0 += SPC_Y
 
                 pygame.draw.circle(self.board, GRID_COLOR, (pos_x0, pos_y0), PIECE_RADIUS)
 
                 for x1, y1 in MOVES[x0][y0]:
                     pos_x1, pos_y1 = self.rects[(N * x1) + y1].topleft
-                    pos_x1 += spc_x
-                    pos_y1 += spc_y
+                    pos_x1 += SPC_X
+                    pos_y1 += SPC_Y
 
                     pygame.draw.line(self.board, GRID_COLOR, (pos_x0, pos_y0), (pos_x1, pos_y1), W_LINE)
 
@@ -287,5 +284,9 @@ class Tapatan:
         return scale(load(path), size)
 
     @property
-    def playing_sound(self):
+    def grid(self):
+        return self.tapatan.grid
+
+    @property
+    def play_sound(self):
         return pygame.mixer.music.get_busy()
