@@ -1,6 +1,6 @@
 from ..constants import BLACK, \
                         WHITE, \
-                        MINIMAX_DEPTH
+                        DEPTH
 from ..formulations import get_moves, win
 
 
@@ -20,7 +20,7 @@ def evaluate(state):
 
     return 0
 
-def minimax(state, depth=MINIMAX_DEPTH):
+def minimax(state, depth=DEPTH):
     return max_value(state, depth)[1]
 
 def max_value(state, depth):

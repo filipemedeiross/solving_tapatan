@@ -1,6 +1,7 @@
 import numpy as np
-from ..constants import N, EMPTY, BLACK, WHITE,  \
-                        MOVES, WINNING_POSITIONS
+from ..constants import N, \
+                        EMPTY, BLACK, WHITE,  \
+                        MOVES, WINNING_POS
 
 
 def new_grid():
@@ -46,7 +47,7 @@ def move(grid, user, start, final):
     grid[final] = user
 
 def win(grid, user):
-    for pos in WINNING_POSITIONS:
+    for pos in WINNING_POS:
         if all(grid[p] == user for p in pos):
             return True
 
