@@ -19,7 +19,7 @@ The tapatan game is implemented using the numpy library for game logic and the p
     <img src="https://github.com/filipemedeiross/solving_tapatan_by_adversarial_search/blob/main/examples/home_screen.png" width="250" height="400">
 </p>
 
-This screen displays the initial board and a **Play** button to start the game with the current piece positions. Additionally, an **i** button links to the project developer's gitHub profile.
+This screen displays the initial board and a **Play** button to start the game with the current piece positions. Additionally, an **i** button links to the project developer's github profile.
 
 <p align="center">
     <img src="https://github.com/filipemedeiross/solving_tapatan_by_adversarial_search/blob/main/examples/game_screen.png" width="250" height="400">
