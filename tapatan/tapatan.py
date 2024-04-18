@@ -41,7 +41,7 @@ class Tapatan:
         self.button_info = self.load_image(INFO_PATH, BU_SIZE)
         self.button_info_rect = self.button_info.get_rect(topright=(GRID_RIGHT, SPC))
 
-        self.button_sound_on  = self.load_image(SOUND_ON_PATH, BU_SIZE)
+        self.button_sound_on  = self.load_image(SOUND_ON_PATH , BU_SIZE)
         self.button_sound_off = self.load_image(SOUND_OFF_PATH, BU_SIZE)
         self.button_sound_rect = self.button_sound_on.get_rect(topright=(self.button_info_rect.left - SPC,
                                                                          self.button_info_rect.top))
